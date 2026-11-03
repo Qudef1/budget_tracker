@@ -52,6 +52,16 @@ Notes:
   repositories only perform `flush()`.
 - A user-selectable date is required; none is generated automatically.
 - Category must belong to the user and have the same transaction type as the transaction.
+- `/monthly-expense-limits/` manages one active limit per user, expense category and currency.
+  All stored limits are active; delete a limit to remove it. Deleting a category also deletes
+  its limits and their periods while leaving transactions without a category.
+- `/execution-limit-periods/` stores a month and year for a limit. Its `expense_amount`,
+  `month_limit` and `period_status` are computed when read from matching expense transactions
+  and the current limit. A change to the limit also affects the displayed status for past
+  periods. Above 80% is `warning`, above 100% is `exceeded`; otherwise it is `not_reached`.
+- `/savings-goals/` manages savings targets. `amount` is the target and `status` is the
+  nonnegative amount already saved; the saved amount is maintained manually.
+- `category.month_limit` is a legacy field and is not used by the new limit calculations.
 - DB runs on host 127.0.0.1:55432, inside the container on 5432.
 - Changing ORM model definitions won't alter existing tables created by `create_all()`;
   for development use Alembic, or reset only if you can discard all local data.

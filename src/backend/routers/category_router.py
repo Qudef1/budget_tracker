@@ -4,6 +4,7 @@ from database import get_async_session
 from schemas.category import CategoryCreate, CategoryResponse, CategoryUpdate
 from repositories.category import CategoryRepository
 from models.financial_transaction import FinancialTransaction
+from models.monthly_expense_limit import MonthlyExpenseLimit
 from sqlalchemy import select
 
 router = APIRouter(prefix="/categories", tags=["Categories"])
@@ -70,6 +71,11 @@ async def update_category(
             ).limit(1))
             if used is not None:
                 raise HTTPException(status_code=409, detail="Нельзя изменить тип категории с привязанными операциями")
+            has_limit = await session.scalar(select(MonthlyExpenseLimit.id).where(
+                MonthlyExpenseLimit.category_id == category_id
+            ).limit(1))
+            if has_limit is not None:
+                raise HTTPException(status_code=409, detail="Нельзя изменить тип категории с установленным лимитом")
         obj = await repo.update(obj, data)
     return obj
 
