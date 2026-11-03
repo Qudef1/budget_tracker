@@ -12,9 +12,9 @@ class Category(Base):
 
     id: Mapped[int] = mapped_column(Integer,primary_key=True)
 
-    name: Mapped[str] = mapped_column(String(20), nullable=False)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
 
-    operation_type: Mapped[TransactionType] = mapped_column(Enum(TransactionType), nullable=False)
+    transaction_type: Mapped[TransactionType] = mapped_column(Enum(TransactionType), nullable=False)
 
     category_type: Mapped[CategoryKind] = mapped_column(Enum(CategoryKind), nullable=False)
 

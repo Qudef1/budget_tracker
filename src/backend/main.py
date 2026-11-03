@@ -7,7 +7,9 @@ from database import AsyncSessionLocal, engine
 from models.base import Base
 from models.financial_transaction import FinancialTransaction
 from models.user import User
+from models.category import Category
 from routers.financial_transactions_router import router as transactions_router
+from routers.category_router import router as category_router
 
 
 @asynccontextmanager
@@ -29,6 +31,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Saldo API (local demo)", lifespan=lifespan)
 app.include_router(transactions_router)
+app.include_router(category_router)
 
 
 @app.get("/health")

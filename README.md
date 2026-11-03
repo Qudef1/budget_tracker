@@ -2,7 +2,7 @@
 
 This is **local-only** CRUD to test from Swagger UI. It is not secure for deployment:
 `get_demo_user_id()` always returns user ID 1 and the `User` table is deliberately minimal.
-A real app requires registration, authentication, access checks, category table and Alembic migrations.
+A real app requires registration, authentication, access checks and a migration system such as Alembic.
 
 ## Run (Windows PowerShell)
 
@@ -13,10 +13,18 @@ pip install -r requirements.txt
 Copy-Item .env.example .env
 docker compose up -d db
 docker compose ps
+cd src/backend
+python migrate_categories.py
 uvicorn main:app --reload
 ```
 
-Open http://127.0.0.1:8000/docs and try POST `/transactions/`, GET `/transactions/`,
+For an existing database, run the migration before starting the new application. It transfers
+old category names into per-user categories, separated by transaction type, and preserves
+transactions. It is safe to run again after it has completed.
+
+Open http://127.0.0.1:8000/docs and create a category using POST `/categories/`, then use its
+`id` in a transaction. The category is optional, and deleting one sets `category_id` to `null`
+on its transactions. Try POST `/transactions/`, GET `/transactions/`,
 GET `/transactions/month?year=2026&month=11`, PATCH and DELETE.
 
 Sample POST JSON:
@@ -26,7 +34,7 @@ Sample POST JSON:
   "transaction_type": "expense",
   "amount": "42.50",
   "currency": "BYN",
-  "category": "food",
+  "category_id": 1,
   "operation_date": "2026-11-03",
   "comment": "Lunch"
 }
@@ -43,7 +51,7 @@ Notes:
 - One transaction for each writing endpoint, using `async with session.begin()`;
   repositories only perform `flush()`.
 - A user-selectable date is required; none is generated automatically.
-- Category is a string placeholder until you implement Category model and category_id FK.
+- Category must belong to the user and have the same transaction type as the transaction.
 - DB runs on host 127.0.0.1:55432, inside the container on 5432.
 - Changing ORM model definitions won't alter existing tables created by `create_all()`;
   for development use Alembic, or reset only if you can discard all local data.

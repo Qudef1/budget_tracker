@@ -6,7 +6,7 @@ from models.base import TransactionType
 from models.category import CategoryKind
 
 class CategoryBase(BaseModel):
-    name: str = Field(max_length=20)
+    name: str = Field(min_length=1, max_length=100)
     transaction_type: TransactionType
     category_type: CategoryKind
     month_limit: int = 1000
@@ -15,7 +15,7 @@ class CategoryCreate(CategoryBase):
     pass
 
 class CategoryUpdate(BaseModel):
-    name: Optional[str] = Field(None, max_length=20)
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
     transaction_type: Optional[TransactionType] = None
     category_type: Optional[CategoryKind] = None
     month_limit: Optional[int] = None

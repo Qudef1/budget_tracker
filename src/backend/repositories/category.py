@@ -10,10 +10,12 @@ class CategoryRepository(BaseRepository[Category]):
     def __init__(self, session: AsyncSession):
         super().__init__(model=Category, session=session)
 
-    async def get_by_user_id(self, user_id: int) -> Category | None:
+    async def get_by_id(self, category_id: int, user_id: int, *, for_update: bool = False) -> Category | None:
         stmt = select(self.model).where(
-            self.model.user_id == user_id
+            self.model.id == category_id, self.model.user_id == user_id
         )
+        if for_update:
+            stmt = stmt.with_for_update()
         return (await self.session.execute(stmt)).scalar_one_or_none()
 
     async def get_multi(
@@ -22,7 +24,7 @@ class CategoryRepository(BaseRepository[Category]):
         stmt = (
             select(self.model)
             .where(self.model.user_id == user_id)
-            .order_by(self.model.operation_date.desc(), self.model.id.desc())
+            .order_by(self.model.id.desc())
             .offset(skip)
             .limit(limit)
         )

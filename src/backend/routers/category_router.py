@@ -3,8 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_async_session
 from schemas.category import CategoryCreate, CategoryResponse, CategoryUpdate
 from repositories.category import CategoryRepository
+from models.financial_transaction import FinancialTransaction
+from sqlalchemy import select
 
-router = APIRouter(prefix="/transactions", tags=["Transactions"])
+router = APIRouter(prefix="/categories", tags=["Categories"])
 
 def get_demo_user_id() -> int:
     return 1
@@ -45,7 +47,7 @@ async def get_category(
     return obj
 
 @router.patch("/{category_id}", response_model=CategoryResponse)
-async def update_transaction(
+async def update_category(
     category_id: int,
     payload: CategoryUpdate,
     session: AsyncSession = Depends(get_async_session),
@@ -59,9 +61,15 @@ async def update_transaction(
 
     repo = CategoryRepository(session)
     async with session.begin():
-        obj = await repo.get_by_id(category_id, user_id)
+        obj = await repo.get_by_id(category_id, user_id, for_update=True)
         if obj is None:
-            raise HTTPException(status_code=404, detail="Операция не найдена")
+            raise HTTPException(status_code=404, detail="Категория не найдена")
+        if "transaction_type" in data and data["transaction_type"] != obj.transaction_type:
+            used = await session.scalar(select(FinancialTransaction.id).where(
+                FinancialTransaction.category_id == category_id
+            ).limit(1))
+            if used is not None:
+                raise HTTPException(status_code=409, detail="Нельзя изменить тип категории с привязанными операциями")
         obj = await repo.update(obj, data)
     return obj
 
@@ -74,7 +82,7 @@ async def delete_category(
 ):
     repo = CategoryRepository(session)
     async with session.begin():
-        obj = await repo.get_by_id(category_id, user_id)
+        obj = await repo.get_by_id(category_id, user_id, for_update=True)
         if obj is None:
-            raise HTTPException(status_code=404, detail="Операция не найдена")
+            raise HTTPException(status_code=404, detail="Категория не найдена")
         await repo.delete(obj)

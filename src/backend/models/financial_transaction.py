@@ -17,9 +17,9 @@ class FinancialTransaction(Base):
     transaction_type: Mapped[TransactionType] = mapped_column(Enum(TransactionType), nullable=False)
     amount: Mapped[Decimal] = mapped_column(Numeric(precision=10,scale=2), nullable=False)
     currency: Mapped[Currency] = mapped_column(Enum(Currency), nullable=False)
-    category: Mapped[int] = mapped_column(
-        ForeignKey("category.id"),
-        nullable=False,
+    category_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("category.id", ondelete="SET NULL"),
+        nullable=True,
         index=True
     )
     operation_date: Mapped[date] = mapped_column(Date, default=date.today, nullable=False)

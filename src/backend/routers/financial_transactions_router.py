@@ -3,11 +3,22 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_async_session
 from schemas.financial_transaction import TransactionCreate, TransactionResponse, TransactionUpdate
 from repositories.financial_transaction import FinancialTransactionRepository
+from repositories.category import CategoryRepository
 
 router = APIRouter(prefix="/transactions", tags=["Transactions"])
 
 def get_demo_user_id() -> int:
     return 1
+
+
+async def validate_category(session, user_id, category_id, transaction_type):
+    if category_id is None:
+        return
+    category = await CategoryRepository(session).get_by_id(category_id, user_id, for_update=True)
+    if category is None:
+        raise HTTPException(status_code=404, detail="Категория не найдена")
+    if category.transaction_type != transaction_type:
+        raise HTTPException(status_code=422, detail="Тип категории не соответствует типу операции")
 
 
 @router.post("/", response_model=TransactionResponse, status_code=status.HTTP_201_CREATED)
@@ -18,6 +29,7 @@ async def create_transaction(
 ):
     repo = FinancialTransactionRepository(session)
     async with session.begin():
+        await validate_category(session, user_id, payload.category_id, payload.transaction_type)
         obj = await repo.create({**payload.model_dump(), "user_id": user_id})
     return obj
 
@@ -66,7 +78,7 @@ async def update_transaction(
     user_id: int = Depends(get_demo_user_id),
 ):
     data = payload.model_dump(exclude_unset=True)
-    required_fields = {"transaction_type", "amount", "currency", "category", "operation_date"}
+    required_fields = {"transaction_type", "amount", "currency", "operation_date"}
     null_fields = required_fields.intersection(data.keys())
     if any(data[field] is None for field in null_fields):
         raise HTTPException(status_code=422, detail="Обязательные поля нельзя устанавливать в null")
@@ -76,6 +88,8 @@ async def update_transaction(
         obj = await repo.get_by_id(transaction_id, user_id)
         if obj is None:
             raise HTTPException(status_code=404, detail="Операция не найдена")
+        await validate_category(session, user_id, data.get("category_id", obj.category_id),
+                                data.get("transaction_type", obj.transaction_type))
         obj = await repo.update(obj, data)
     return obj
 
