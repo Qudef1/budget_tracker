@@ -1,4 +1,5 @@
-from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint
+from decimal import Decimal
+from sqlalchemy import Boolean, CheckConstraint, ForeignKey, Numeric, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from models.base import Base
@@ -16,3 +17,6 @@ class ExecutionLimitPeriod(Base):
     monthly_expense_limit_id: Mapped[int] = mapped_column(ForeignKey("monthly_expense_limits.id", ondelete="CASCADE"), nullable=False, index=True)
     month: Mapped[int] = mapped_column(nullable=False)
     year: Mapped[int] = mapped_column(nullable=False)
+    month_limit: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
+    expense_amount: Mapped[Decimal] = mapped_column(Numeric(14, 2), nullable=False)
+    is_final: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("true"), default=True)

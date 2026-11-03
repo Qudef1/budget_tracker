@@ -15,6 +15,7 @@ docker compose up -d db
 docker compose ps
 cd src/backend
 python migrate_categories.py
+python migrate_budget_history.py
 uvicorn main:app --reload
 ```
 
@@ -52,16 +53,33 @@ Notes:
   repositories only perform `flush()`.
 - A user-selectable date is required; none is generated automatically.
 - Category must belong to the user and have the same transaction type as the transaction.
-- `/monthly-expense-limits/` manages one active limit per user, expense category and currency.
-  All stored limits are active; delete a limit to remove it. Deleting a category also deletes
-  its limits and their periods while leaving transactions without a category.
-- `/execution-limit-periods/` stores a month and year for a limit. Its `expense_amount`,
-  `month_limit` and `period_status` are computed when read from matching expense transactions
-  and the current limit. A change to the limit also affects the displayed status for past
-  periods. Above 80% is `warning`, above 100% is `exceeded`; otherwise it is `not_reached`.
+- `/budgets/limits` creates and lists active limits; PATCH and DELETE use `/budgets/limits/{id}`.
+  At most one limit is active for a user, expense category and currency. A limit begins in
+  the current month (UTC+3) and repeats automatically. Changes apply to the current month;
+  earlier months are saved as snapshots before an update or deletion. Before a snapshot is
+  saved, expenses and status reflect the current transactions. Deletion archives the limit;
+  deleting a category also archives its limits and removes the category from transactions.
+- `/budgets/limits/{id}/execution?year=2026&month=11` returns the monthly amount spent,
+  limit, percentage and status; `/budgets/limits/{id}/history` returns monthly history,
+  including after deletion. Future months and months before creation are not available.
+  Above 80% is `warning`, above 100% is `exceeded`; otherwise it is `not_reached`.
 - `/savings-goals/` manages savings targets. `amount` is the target and `status` is the
   nonnegative amount already saved; the saved amount is maintained manually.
+- `/analytics/monthly`, `/analytics/compare`, and `/analytics/categories` calculate
+  user totals from transactions for one currency. Month comparison is second minus first;
+  undefined percentage changes return `null`. Categories with no category ID are grouped
+  together with `category_id` and `category_name` set to `null`.
+- The application currently uses a fixed demo user and has no authentication or admin role.
+  Admin statistics are available only as an internal service, not as an HTTP endpoint;
+  blocked user counts are unavailable because the user model has no blocking field.
 - `category.month_limit` is a legacy field and is not used by the new limit calculations.
 - DB runs on host 127.0.0.1:55432, inside the container on 5432.
 - Changing ORM model definitions won't alter existing tables created by `create_all()`;
   for development use Alembic, or reset only if you can discard all local data.
+- `migrate_budget_history.py` upgrades the earlier budget tables without deleting existing
+  limits or periods. Earlier period values are reconstructed using the limit amount and
+  transaction data available at migration time; old limit changes cannot be recovered.
+
+For integration tests, install `pip install -r requirements-dev.txt` and run
+`python -m pytest tests` from `src/backend` against PostgreSQL with the schema installed.
+Test records are inserted inside transactions that are rolled back.

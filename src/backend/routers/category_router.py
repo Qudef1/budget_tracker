@@ -6,6 +6,7 @@ from repositories.category import CategoryRepository
 from models.financial_transaction import FinancialTransaction
 from models.monthly_expense_limit import MonthlyExpenseLimit
 from sqlalchemy import select
+from services.budget import BudgetService
 
 router = APIRouter(prefix="/categories", tags=["Categories"])
 
@@ -72,7 +73,7 @@ async def update_category(
             if used is not None:
                 raise HTTPException(status_code=409, detail="Нельзя изменить тип категории с привязанными операциями")
             has_limit = await session.scalar(select(MonthlyExpenseLimit.id).where(
-                MonthlyExpenseLimit.category_id == category_id
+                MonthlyExpenseLimit.category_id == category_id, MonthlyExpenseLimit.is_active.is_(True)
             ).limit(1))
             if has_limit is not None:
                 raise HTTPException(status_code=409, detail="Нельзя изменить тип категории с установленным лимитом")
@@ -91,4 +92,9 @@ async def delete_category(
         obj = await repo.get_by_id(category_id, user_id, for_update=True)
         if obj is None:
             raise HTTPException(status_code=404, detail="Категория не найдена")
+        active_limits = (await session.scalars(select(MonthlyExpenseLimit.id).where(
+            MonthlyExpenseLimit.category_id == category_id, MonthlyExpenseLimit.is_active.is_(True)
+        ))).all()
+        for limit_id in active_limits:
+            await BudgetService(session).delete_limit(user_id, limit_id)
         await repo.delete(obj)
