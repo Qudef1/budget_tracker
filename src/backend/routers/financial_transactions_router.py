@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List
 from database import get_async_session
 from schemas.financial_transaction import TransactionCreate, TransactionResponse, TransactionUpdate
 from repositories.financial_transaction import FinancialTransactionRepository
