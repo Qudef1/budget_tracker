@@ -1,8 +1,8 @@
 # Saldo frontend
 
 React + TypeScript + Vite. The initial stage provides a route skeleton and a local
-API proxy, registration, sign-in and route guards. Financial route contents and styles
-are provisional; financial workflows and Figma styling are not implemented yet.
+API proxy, registration, sign-in, route guards, transaction CRUD and category CRUD.
+Other financial route contents and styles are provisional; Figma styling is not implemented yet.
 The short-lived access token is held in React memory and is discarded on page reload.
 
 ## Local development
@@ -26,7 +26,7 @@ Use `npm.cmd run build` for TypeScript checking and the production bundle,
 
 1. Routing, shared components and design tokens (visual design pending Figma access).
 2. In-memory OAuth2 access token, `/auth/me`, role guards and application layout (implemented).
-3. Transaction and category CRUD.
+3. Transaction and category CRUD (implemented).
 4. Monthly limits, execution/history and savings goals.
 5. Monthly, comparative and category analytics.
 6. Admin user management and aggregate statistics.

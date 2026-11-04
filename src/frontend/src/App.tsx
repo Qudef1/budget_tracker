@@ -2,6 +2,8 @@ import { Link, NavLink, Outlet, Route, Routes } from 'react-router-dom'
 import { AuthPage } from './auth/AuthPage'
 import { useAuth } from './auth/AuthContext'
 import { RequireAdmin, RequireUser } from './auth/RouteGuards'
+import { CategoriesPage } from './pages/CategoriesPage'
+import { TransactionsPage } from './pages/TransactionsPage'
 import './App.css'
 
 const sections = [
@@ -52,8 +54,8 @@ function App() {
         <Route path="login" element={<AuthPage key="login" mode="login" />} />
         <Route path="register" element={<AuthPage key="register" mode="register" />} />
         <Route element={<RequireUser />}>
-        <Route path="transactions" element={<StageNotice title="Операции">Управление операциями появится на следующем этапе разработки.</StageNotice>} />
-        <Route path="categories" element={<StageNotice title="Категории">Управление категориями появится на следующем этапе разработки.</StageNotice>} />
+        <Route path="transactions" element={<TransactionsPage />} />
+        <Route path="categories" element={<CategoriesPage />} />
         <Route path="budgets" element={<StageNotice title="Бюджеты">Управление лимитами появится на следующем этапе разработки.</StageNotice>} />
         <Route path="savings" element={<StageNotice title="Накопления">Управление целями появится на следующем этапе разработки.</StageNotice>} />
         <Route path="analytics" element={<StageNotice title="Аналитика">Аналитика появится на следующем этапе разработки.</StageNotice>} />
