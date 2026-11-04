@@ -47,8 +47,7 @@ class AdminAnalyticsService:
         self.repo = AdminAnalyticsRepository(session)
 
     async def get_statistics(self, year, month):
-        users, transactions, monthly, goals, categories = await self.repo.counts(year, month)
-        # User has no blocked flag; do not claim a zero count.
-        return AdminStatistics(year=year, month=month, total_users=users, blocked_users=None,
+        users, blocked, transactions, monthly, goals, categories = await self.repo.counts(year, month)
+        return AdminStatistics(year=year, month=month, total_users=users, blocked_users=blocked,
             total_transactions=transactions, monthly_transactions=monthly,
             total_savings_goals=goals, custom_categories=categories)

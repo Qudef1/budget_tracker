@@ -15,6 +15,7 @@ class AdminAnalyticsRepository:
         # Scalar subqueries keep this to one round trip and return counts only.
         stmt = select(
             select(func.count()).select_from(User).scalar_subquery(),
+            select(func.count()).select_from(User).where(User.is_blocked.is_(True)).scalar_subquery(),
             select(func.count()).select_from(FinancialTransaction).scalar_subquery(),
             select(func.count()).select_from(FinancialTransaction).where(
                 FinancialTransaction.operation_date >= start,

@@ -1,14 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_async_session
+from security import get_current_user_id
 from schemas.financial_transaction import TransactionCreate, TransactionResponse, TransactionUpdate
 from repositories.financial_transaction import FinancialTransactionRepository
 from repositories.category import CategoryRepository
 
 router = APIRouter(prefix="/transactions", tags=["Transactions"])
 
-def get_demo_user_id() -> int:
-    return 1
 
 
 async def validate_category(session, user_id, category_id, transaction_type):
@@ -25,7 +24,7 @@ async def validate_category(session, user_id, category_id, transaction_type):
 async def create_transaction(
     payload: TransactionCreate,
     session: AsyncSession = Depends(get_async_session),
-    user_id: int = Depends(get_demo_user_id),
+    user_id: int = Depends(get_current_user_id),
 ):
     repo = FinancialTransactionRepository(session)
     async with session.begin():
@@ -39,7 +38,7 @@ async def get_transactions(
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=100),
     session: AsyncSession = Depends(get_async_session),
-    user_id: int = Depends(get_demo_user_id),
+    user_id: int = Depends(get_current_user_id),
 ):
     repo = FinancialTransactionRepository(session)
     return await repo.get_multi(user_id=user_id, skip=skip, limit=limit)
@@ -51,7 +50,7 @@ async def get_transactions_by_month(
     year: int = Query(ge=1, le=9998),
     month: int = Query(ge=1, le=12),
     session: AsyncSession = Depends(get_async_session),
-    user_id: int = Depends(get_demo_user_id),
+    user_id: int = Depends(get_current_user_id),
 ):
     repo = FinancialTransactionRepository(session)
     return await repo.get_by_month(user_id=user_id, year=year, month=month)
@@ -61,7 +60,7 @@ async def get_transactions_by_month(
 async def get_transaction(
     transaction_id: int,
     session: AsyncSession = Depends(get_async_session),
-    user_id: int = Depends(get_demo_user_id),
+    user_id: int = Depends(get_current_user_id),
 ):
     repo = FinancialTransactionRepository(session)
     obj = await repo.get_by_id(transaction_id, user_id)
@@ -75,7 +74,7 @@ async def update_transaction(
     transaction_id: int,
     payload: TransactionUpdate,
     session: AsyncSession = Depends(get_async_session),
-    user_id: int = Depends(get_demo_user_id),
+    user_id: int = Depends(get_current_user_id),
 ):
     data = payload.model_dump(exclude_unset=True)
     required_fields = {"transaction_type", "amount", "currency", "operation_date"}
@@ -98,7 +97,7 @@ async def update_transaction(
 async def delete_transaction(
     transaction_id: int,
     session: AsyncSession = Depends(get_async_session),
-    user_id: int = Depends(get_demo_user_id),
+    user_id: int = Depends(get_current_user_id),
 ):
     repo = FinancialTransactionRepository(session)
     async with session.begin():

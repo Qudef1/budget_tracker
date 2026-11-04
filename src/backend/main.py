@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from sqlalchemy import select
 
-from database import AsyncSessionLocal, engine
+from database import engine
 from models.base import Base
 from models.financial_transaction import FinancialTransaction
 from models.user import User
@@ -18,31 +18,30 @@ from routers.budget_router import router as budget_router
 from services.budget import BudgetError
 from routers.savings_goal_router import router as savings_goal_router
 from routers.analytics_router import router as analytics_router
+from routers.auth_router import router as auth_router
+from routers.admin_router import router as admin_router
+from security import settings
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    settings()
     # Demo only: use Alembic migrations in a real application.
     async with engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
-
-    # Demo identity for Swagger CRUD. No real authentication yet.
-    async with AsyncSessionLocal.begin() as session:
-        existing = await session.get(User, 1)
-        if existing is None:
-            # This is not a valid password hash; demo login is not supported.
-            session.add(User(id=1, username="demo", password_hash="!"))
 
     yield
     await engine.dispose()
 
 
-app = FastAPI(title="Saldo API (local demo)", lifespan=lifespan)
+app = FastAPI(title="Saldo API", lifespan=lifespan)
 app.include_router(transactions_router)
 app.include_router(category_router)
 app.include_router(budget_router)
 app.include_router(savings_goal_router)
 app.include_router(analytics_router)
+app.include_router(auth_router)
+app.include_router(admin_router)
 
 
 @app.exception_handler(BudgetError)

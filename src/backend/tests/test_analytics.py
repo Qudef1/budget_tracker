@@ -13,7 +13,7 @@ from models.financial_transaction import FinancialTransaction
 from models.user import User
 from models.savings_goal import SavingsGoal
 from services.analytics import AdminAnalyticsService, AnalyticsService
-from routers.financial_transactions_router import get_demo_user_id
+from security import get_current_user_id
 
 
 class AnalyticsIntegrationTest(IsolatedAsyncioTestCase):
@@ -107,7 +107,7 @@ class AnalyticsIntegrationTest(IsolatedAsyncioTestCase):
         self.assertEqual(stats.monthly_transactions - baseline.monthly_transactions, 1)
         self.assertEqual(stats.total_savings_goals - baseline.total_savings_goals, 1)
         self.assertEqual(stats.custom_categories - baseline.custom_categories, 1)
-        self.assertIsNone(stats.blocked_users)
+        self.assertGreaterEqual(stats.blocked_users, 0)
         self.assertEqual(set(stats.model_dump()), {'year', 'month', 'total_users', 'blocked_users',
             'total_transactions', 'monthly_transactions', 'total_savings_goals', 'custom_categories'})
         messages = []
@@ -120,13 +120,13 @@ class AnalyticsIntegrationTest(IsolatedAsyncioTestCase):
                  'query_string': b'year=2026&month=11', 'headers': [], 'client': ('127.0.0.1', 1),
                  'server': ('test', 80), 'root_path': ''}
         await app(scope, receive, send)
-        self.assertEqual(next(m['status'] for m in messages if m['type'] == 'http.response.start'), 404)
+        self.assertEqual(next(m['status'] for m in messages if m['type'] == 'http.response.start'), 401)
 
     async def test_http_routes_and_validation(self):
         async def session_override():
             yield self.session
         app.dependency_overrides[get_async_session] = session_override
-        app.dependency_overrides[get_demo_user_id] = lambda: self.users[0].id
+        app.dependency_overrides[get_current_user_id] = lambda: self.users[0].id
 
         async def get(path, query):
             messages = []

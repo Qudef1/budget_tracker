@@ -1,8 +1,7 @@
 # Saldo FastAPI local demo
 
-This is **local-only** CRUD to test from Swagger UI. It is not secure for deployment:
-`get_demo_user_id()` always returns user ID 1 and the `User` table is deliberately minimal.
-A real app requires registration, authentication, access checks and a migration system such as Alembic.
+FastAPI backend for personal budgeting. Users authenticate with a JWT and can access only
+their own financial records; administrators can manage accounts and see aggregate statistics.
 
 ## Run (Windows PowerShell)
 
@@ -11,8 +10,10 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 Copy-Item .env.example .env
+python -c "import secrets; from pathlib import Path; p=Path('.env'); p.write_text(p.read_text().replace('JWT_SECRET_KEY=', 'JWT_SECRET_KEY='+secrets.token_urlsafe(48)), encoding='utf-8')"
 docker compose up -d db
 docker compose ps
+.\.venv\Scripts\python.exe -m alembic upgrade head
 cd src/backend
 python migrate_categories.py
 python migrate_budget_history.py
@@ -23,7 +24,19 @@ For an existing database, run the migration before starting the new application.
 old category names into per-user categories, separated by transaction type, and preserves
 transactions. It is safe to run again after it has completed.
 
-Open http://127.0.0.1:8000/docs and create a category using POST `/categories/`, then use its
+On an existing installation, run the Alembic migration before starting the updated app.
+Existing users remain active with the `USER` role. The old `demo` user has no usable password;
+to retain access to its existing data, run `python src/backend/reset_user_password.py` from the
+project root and enter `demo` and a new password interactively. The original data remain in place.
+
+Create an administrator locally with `python src/backend/create_admin.py`; its password is
+entered interactively. There is no public administrator registration endpoint. Treat `.env`
+and its signing key as secrets, use a unique random key per installation, and keep the key
+stable across restarts. `JWT_ACCESS_TOKEN_MINUTES` sets token lifetime.
+
+Open http://127.0.0.1:8000/docs, register via `POST /auth/register`, then click **Authorize**
+and supply the username and password. Swagger obtains a bearer token via `POST /auth/login`.
+Next create a category using POST `/categories/`, then use its
 `id` in a transaction. The category is optional, and deleting one sets `category_id` to `null`
 on its transactions. Try POST `/transactions/`, GET `/transactions/`,
 GET `/transactions/month?year=2026&month=11`, PATCH and DELETE.
@@ -69,9 +82,9 @@ Notes:
   user totals from transactions for one currency. Month comparison is second minus first;
   undefined percentage changes return `null`. Categories with no category ID are grouped
   together with `category_id` and `category_name` set to `null`.
-- The application currently uses a fixed demo user and has no authentication or admin role.
-  Admin statistics are available only as an internal service, not as an HTTP endpoint;
-  blocked user counts are unavailable because the user model has no blocking field.
+- `/auth/me` returns the active authenticated user. `/admin/users`, its block/unblock routes,
+  and `/admin/statistics` require an active administrator. Admin financial routes still use
+  the administrator's own user ID and cannot access another user's financial data.
 - `category.month_limit` is a legacy field and is not used by the new limit calculations.
 - DB runs on host 127.0.0.1:55432, inside the container on 5432.
 - Changing ORM model definitions won't alter existing tables created by `create_all()`;

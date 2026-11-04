@@ -41,7 +41,7 @@ class AdminStatistics(BaseModel):
     year: int
     month: int
     total_users: int
-    blocked_users: int | None
+    blocked_users: int
     total_transactions: int
     monthly_transactions: int
     total_savings_goals: int
