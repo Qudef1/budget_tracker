@@ -2,7 +2,7 @@
 
 React + TypeScript + Vite. The initial stage provides a route skeleton and a local
 API proxy, registration, sign-in, route guards, transaction and category CRUD, monthly
-limits and savings goals. Analytics and administration are not implemented yet; styles
+limits, savings goals and financial analytics. Administration is not implemented yet; styles
 are provisional and Figma styling is not implemented yet.
 The short-lived access token is held in React memory and is discarded on page reload.
 
@@ -29,10 +29,12 @@ Use `npm.cmd run build` for TypeScript checking and the production bundle,
 2. In-memory OAuth2 access token, `/auth/me`, role guards and application layout (implemented).
 3. Transaction and category CRUD (implemented).
 4. Monthly limits, execution/history and savings goals (implemented).
-5. Monthly, comparative and category analytics.
+5. Monthly, comparative and category analytics (implemented).
 6. Admin user management and aggregate statistics.
 7. End-to-end checks, accessibility and responsive polish.
 
 Existing API endpoints are the contract; route placeholders do not contain mock data.
 Archived limits are not listed by the backend, so retain the displayed limit ID to find
 its history after a reload. The backend does not include currency in archived history.
+Adding to a savings goal reads the current amount and then updates it; this operation is not
+atomic across tabs or devices because the backend only supports setting the absolute amount.

@@ -58,6 +58,7 @@
 .data-row > div:first-child { display: grid; gap: .35rem; min-width: 0; overflow-wrap: anywhere; }
 .data-row span { font-size: .85rem; color: var(--color-muted); }
 .row-actions button { padding: .4rem .6rem; font-size: .85rem; }
+.row-actions { flex-wrap: wrap; }
 .row-end { flex-wrap: wrap; justify-content: end; }
 .income { color: #216943; white-space: nowrap; }
 .expense { color: #8f2222; white-space: nowrap; }
@@ -80,6 +81,25 @@
 .history-list { list-style: none; margin: 0; padding: 0; }
 .history-list li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; padding: .8rem 0; border-bottom: 1px solid var(--color-border); }
 .history-list span { color: var(--color-muted); font-size: .9rem; }
+.analytics-filters { display: flex; flex-wrap: wrap; gap: 1rem; }
+.analytics-filters label { display: grid; gap: .4rem; font-size: .9rem; font-weight: 650; }
+.analytics-filters input, .analytics-filters select { border: 1px solid var(--color-border); border-radius: var(--radius-control); padding: .6rem; font: inherit; color: var(--color-text); background: white; }
+.analytics-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1rem; }
+.analytics-cards article { display: grid; gap: .6rem; }
+.analytics-cards span { color: var(--color-muted); font-size: .9rem; }
+.analytics-cards strong { font-size: clamp(1.2rem, 3vw, 1.7rem); overflow-wrap: anywhere; }
+.analytics-chart h2 { margin: 0 0 1rem; font-size: 1.2rem; }
+.chart-row { display: grid; grid-template-columns: 6rem minmax(5rem, 1fr) auto; align-items: center; gap: .8rem; margin: .8rem 0; }
+.chart-row progress, .category-chart progress { width: 100%; height: .7rem; accent-color: var(--color-accent); }
+.chart-row strong { text-align: right; }
+.category-chart { list-style: none; padding: 0; margin: 0; }
+.category-chart li { display: grid; gap: .5rem; margin: 1rem 0; }
+.category-chart li > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; }
+.category-chart span { color: var(--color-muted); }
+.table-scroll { overflow-x: auto; margin-top: 1rem; }
+.comparison-table { border-collapse: collapse; width: 100%; min-width: 38rem; text-align: left; }
+.comparison-table th, .comparison-table td { border-bottom: 1px solid var(--color-border); padding: .8rem; }
+.comparison-table thead th { color: var(--color-muted); font-size: .85rem; }
 @media (max-width: 900px) {
   .app-header { flex-wrap: wrap; gap: 0.75rem; }
   .navigation { flex-basis: 100%; order: 3; }
@@ -90,4 +110,6 @@
   .page-heading .primary-button { align-self: flex-start; }
   .data-row { align-items: flex-start; flex-direction: column; }
   .row-end { justify-content: start; }
+  .chart-row { grid-template-columns: 1fr auto; }
+  .chart-row progress { grid-column: 1 / -1; grid-row: 2; }
 }

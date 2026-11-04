@@ -6,6 +6,7 @@ import { CategoriesPage } from './pages/CategoriesPage'
 import { TransactionsPage } from './pages/TransactionsPage'
 import { BudgetsPage } from './pages/BudgetsPage'
 import { SavingsPage } from './pages/SavingsPage'
+import { AnalyticsPage } from './pages/AnalyticsPage'
 import './App.css'
 
 const sections = [
@@ -60,7 +61,7 @@ function App() {
         <Route path="categories" element={<CategoriesPage />} />
         <Route path="budgets" element={<BudgetsPage />} />
         <Route path="savings" element={<SavingsPage />} />
-        <Route path="analytics" element={<StageNotice title="Аналитика">Аналитика появится на следующем этапе разработки.</StageNotice>} />
+        <Route path="analytics" element={<AnalyticsPage />} />
         <Route path="forbidden" element={<StageNotice title="Доступ запрещён">Этот раздел доступен только администратору.</StageNotice>} />
         <Route element={<RequireAdmin />}>
           <Route path="admin" element={<StageNotice title="Администрирование">Раздел администрирования появится на следующем этапе разработки.</StageNotice>} />

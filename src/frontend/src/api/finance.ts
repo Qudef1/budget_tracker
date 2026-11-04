@@ -58,6 +58,33 @@ export interface SavingsGoal {
   status: string
 }
 
+export interface MonthlySummary {
+  year: number
+  month: number
+  currency: Currency
+  total_income: string
+  total_expenses: string
+  balance: string
+}
+
+export interface MonthComparison {
+  first: MonthlySummary
+  second: MonthlySummary
+  income_change: string
+  expenses_change: string
+  balance_change: string
+  income_change_percent: string | null
+  expenses_change_percent: string | null
+}
+
+export interface ExpensesByCategory {
+  year: number
+  month: number
+  currency: Currency
+  total_expenses: string
+  categories: { category_id: number | null; category_name: string | null; amount: string; percentage: string }[]
+}
+
 type Request = <T>(path: string, init?: RequestInit) => Promise<T>
 
 export async function getAllPages<T>(request: Request, path: string): Promise<T[]> {
@@ -78,6 +105,21 @@ export function decimalInput(value: string, allowZero = false): string | null {
   const normalized = value.trim().replace(',', '.')
   if (!/^\d{1,8}(?:\.\d{1,2})?$/.test(normalized)) return null
   return allowZero || Number(normalized) > 0 ? normalized : null
+}
+
+/** Sum normalized two-decimal money strings without floating-point arithmetic. */
+export function addMoney(left: string, right: string): string | null {
+  function cents(value: string): bigint | null {
+    const normalized = decimalInput(value, true)
+    if (normalized === null) return null
+    const [whole, fraction = ''] = normalized.split('.')
+    return BigInt(whole) * 100n + BigInt(fraction.padEnd(2, '0'))
+  }
+  const a = cents(left), b = cents(right)
+  if (a === null || b === null) return null
+  const total = a + b
+  if (total > 9_999_999_999n) return null
+  return `${total / 100n}.${String(total % 100n).padStart(2, '0')}`
 }
 
 export function jsonBody(method: 'POST' | 'PATCH', data: unknown): RequestInit {
