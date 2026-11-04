@@ -1,0 +1,71 @@
+import { Link, NavLink, Outlet, Route, Routes } from 'react-router-dom'
+import { AuthPage } from './auth/AuthPage'
+import { useAuth } from './auth/AuthContext'
+import { RequireAdmin, RequireUser } from './auth/RouteGuards'
+import './App.css'
+
+const sections = [
+  { path: '/transactions', label: 'Операции' },
+  { path: '/categories', label: 'Категории' },
+  { path: '/budgets', label: 'Бюджеты' },
+  { path: '/savings', label: 'Накопления' },
+  { path: '/analytics', label: 'Аналитика' },
+]
+
+function AppShell() {
+  const { user, signOut } = useAuth()
+  return (
+    <div className="app-shell">
+      <header className="app-header">
+        <Link className="brand" to="/">Saldo</Link>
+        {user && <nav aria-label="Основная навигация" className="navigation">
+          {sections.map(({ path, label }) => (
+            <NavLink key={path} to={path} className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+              {label}
+            </NavLink>
+          ))}
+          {user.role === 'ADMIN' && <NavLink to="/admin" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Администрирование</NavLink>}
+        </nav>}
+        {user ? <div className="account"><span className="account-name">{user.username}</span><button className="text-button" onClick={signOut}>Выйти</button></div>
+          : <Link className="signin-link" to="/login">Вход</Link>}
+      </header>
+      <main className="page-content"><Outlet /></main>
+    </div>
+  )
+}
+
+function StageNotice({ title, children }: { title: string; children: string }) {
+  return (
+    <section className="stage-notice" aria-labelledby="page-title">
+      <span className="stage-label">В разработке</span>
+      <h1 id="page-title">{title}</h1>
+      <p>{children}</p>
+    </section>
+  )
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route element={<AppShell />}>
+        <Route index element={<StageNotice title="Saldo">Интерфейс управления финансами находится в разработке.</StageNotice>} />
+        <Route path="login" element={<AuthPage key="login" mode="login" />} />
+        <Route path="register" element={<AuthPage key="register" mode="register" />} />
+        <Route element={<RequireUser />}>
+        <Route path="transactions" element={<StageNotice title="Операции">Управление операциями появится на следующем этапе разработки.</StageNotice>} />
+        <Route path="categories" element={<StageNotice title="Категории">Управление категориями появится на следующем этапе разработки.</StageNotice>} />
+        <Route path="budgets" element={<StageNotice title="Бюджеты">Управление лимитами появится на следующем этапе разработки.</StageNotice>} />
+        <Route path="savings" element={<StageNotice title="Накопления">Управление целями появится на следующем этапе разработки.</StageNotice>} />
+        <Route path="analytics" element={<StageNotice title="Аналитика">Аналитика появится на следующем этапе разработки.</StageNotice>} />
+        <Route path="forbidden" element={<StageNotice title="Доступ запрещён">Этот раздел доступен только администратору.</StageNotice>} />
+        <Route element={<RequireAdmin />}>
+          <Route path="admin" element={<StageNotice title="Администрирование">Раздел администрирования появится на следующем этапе разработки.</StageNotice>} />
+        </Route>
+        </Route>
+        <Route path="*" element={<StageNotice title="Страница не найдена">Проверьте адрес или выберите раздел в меню.</StageNotice>} />
+      </Route>
+    </Routes>
+  )
+}
+
+export default App

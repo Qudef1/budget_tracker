@@ -1,0 +1,21 @@
+/* Temporary neutral tokens until the Figma file can be inspected. */
+:root {
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --color-background: #f7f8fa;
+  --color-surface: #fff;
+  --color-text: #18222c;
+  --color-muted: #596774;
+  --color-border: #d9dfe5;
+  --color-accent: #245b79;
+  --radius-control: 0.5rem;
+  --radius-panel: 0.875rem;
+  --space-page: clamp(1rem, 4vw, 3rem);
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; background: var(--color-background); color: var(--color-text); }
+a { color: inherit; }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--color-accent); outline-offset: 3px; }
