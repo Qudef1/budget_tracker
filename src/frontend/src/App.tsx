@@ -7,6 +7,7 @@ import { TransactionsPage } from './pages/TransactionsPage'
 import { BudgetsPage } from './pages/BudgetsPage'
 import { SavingsPage } from './pages/SavingsPage'
 import { AnalyticsPage } from './pages/AnalyticsPage'
+import { AdminPage } from './pages/AdminPage'
 import './App.css'
 
 const sections = [
@@ -64,7 +65,7 @@ function App() {
         <Route path="analytics" element={<AnalyticsPage />} />
         <Route path="forbidden" element={<StageNotice title="Доступ запрещён">Этот раздел доступен только администратору.</StageNotice>} />
         <Route element={<RequireAdmin />}>
-          <Route path="admin" element={<StageNotice title="Администрирование">Раздел администрирования появится на следующем этапе разработки.</StageNotice>} />
+          <Route path="admin" element={<AdminPage />} />
         </Route>
         </Route>
         <Route path="*" element={<StageNotice title="Страница не найдена">Проверьте адрес или выберите раздел в меню.</StageNotice>} />

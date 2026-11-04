@@ -2,8 +2,8 @@
 
 React + TypeScript + Vite. The initial stage provides a route skeleton and a local
 API proxy, registration, sign-in, route guards, transaction and category CRUD, monthly
-limits, savings goals and financial analytics. Administration is not implemented yet; styles
-are provisional and Figma styling is not implemented yet.
+limits, savings goals, financial analytics and administration. Styles are provisional and
+Figma styling is not implemented yet.
 The short-lived access token is held in React memory and is discarded on page reload.
 
 ## Local development
@@ -30,7 +30,7 @@ Use `npm.cmd run build` for TypeScript checking and the production bundle,
 3. Transaction and category CRUD (implemented).
 4. Monthly limits, execution/history and savings goals (implemented).
 5. Monthly, comparative and category analytics (implemented).
-6. Admin user management and aggregate statistics.
+6. Admin user management and aggregate statistics (implemented).
 7. End-to-end checks, accessibility and responsive polish.
 
 Existing API endpoints are the contract; route placeholders do not contain mock data.
