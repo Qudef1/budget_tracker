@@ -29,16 +29,55 @@ export interface TransactionInput {
   comment: string | null
 }
 
+export interface BudgetLimit {
+  id: number
+  user_id: number
+  category_id: number
+  amount: string
+  currency: Currency
+}
+
+export interface LimitExecution {
+  limit_id: number
+  year: number
+  month: number
+  month_limit: string
+  expense_amount: string
+  usage_percent: string
+  period_status: 'not_reached' | 'warning' | 'exceeded'
+  warning: boolean
+  exceeded: boolean
+}
+
+export interface SavingsGoal {
+  id: number
+  user_id: number
+  name: string
+  amount: string
+  currency: Currency
+  status: string
+}
+
 type Request = <T>(path: string, init?: RequestInit) => Promise<T>
 
-export async function getAllCategories(request: Request): Promise<Category[]> {
-  const all: Category[] = []
+export async function getAllPages<T>(request: Request, path: string): Promise<T[]> {
+  const all: T[] = []
   const limit = 100
   for (;;) {
-    const page = await request<Category[]>(`/categories/?skip=${all.length}&limit=${limit}`)
+    const page = await request<T[]>(`${path}?skip=${all.length}&limit=${limit}`)
     all.push(...page)
     if (page.length < limit) return all
   }
+}
+
+export async function getAllCategories(request: Request): Promise<Category[]> {
+  return getAllPages<Category>(request, '/categories/')
+}
+
+export function decimalInput(value: string, allowZero = false): string | null {
+  const normalized = value.trim().replace(',', '.')
+  if (!/^\d{1,8}(?:\.\d{1,2})?$/.test(normalized)) return null
+  return allowZero || Number(normalized) > 0 ? normalized : null
 }
 
 export function jsonBody(method: 'POST' | 'PATCH', data: unknown): RequestInit {

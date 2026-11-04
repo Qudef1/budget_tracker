@@ -4,6 +4,8 @@ import { useAuth } from './auth/AuthContext'
 import { RequireAdmin, RequireUser } from './auth/RouteGuards'
 import { CategoriesPage } from './pages/CategoriesPage'
 import { TransactionsPage } from './pages/TransactionsPage'
+import { BudgetsPage } from './pages/BudgetsPage'
+import { SavingsPage } from './pages/SavingsPage'
 import './App.css'
 
 const sections = [
@@ -56,8 +58,8 @@ function App() {
         <Route element={<RequireUser />}>
         <Route path="transactions" element={<TransactionsPage />} />
         <Route path="categories" element={<CategoriesPage />} />
-        <Route path="budgets" element={<StageNotice title="Бюджеты">Управление лимитами появится на следующем этапе разработки.</StageNotice>} />
-        <Route path="savings" element={<StageNotice title="Накопления">Управление целями появится на следующем этапе разработки.</StageNotice>} />
+        <Route path="budgets" element={<BudgetsPage />} />
+        <Route path="savings" element={<SavingsPage />} />
         <Route path="analytics" element={<StageNotice title="Аналитика">Аналитика появится на следующем этапе разработки.</StageNotice>} />
         <Route path="forbidden" element={<StageNotice title="Доступ запрещён">Этот раздел доступен только администратору.</StageNotice>} />
         <Route element={<RequireAdmin />}>
