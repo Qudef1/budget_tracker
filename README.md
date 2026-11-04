@@ -1,9 +1,49 @@
-# Saldo FastAPI local demo
+# Saldo
 
 FastAPI backend for personal budgeting. Users authenticate with a JWT and can access only
 their own financial records; administrators can manage accounts and see aggregate statistics.
 
-## Run (Windows PowerShell)
+## Run the complete app with Docker Compose
+
+From the project root, create `.env` only if you do not already have one, and generate a
+private JWT signing key for that new file:
+
+```powershell
+if (!(Test-Path .env)) {
+    Copy-Item .env.example .env
+    python -c "import secrets; from pathlib import Path; p=Path('.env'); p.write_text(p.read_text().replace('JWT_SECRET_KEY=', 'JWT_SECRET_KEY='+secrets.token_urlsafe(48)), encoding='utf-8')"
+}
+docker compose up -d --build
+docker compose ps
+```
+
+If `.env` already exists, preserve its `JWT_SECRET_KEY`; it must contain at least 32 bytes.
+Do not regenerate the key on each restart: doing so invalidates existing access tokens.
+Compose uses the database address `db:5432` inside Docker regardless of the local
+`DATABASE_URL` in `.env`. The existing named PostgreSQL volume is preserved.
+
+- App: http://127.0.0.1:5173
+- Backend Swagger: http://127.0.0.1:8000/docs
+- Logs: `docker compose logs -f backend frontend`
+- Stop containers without deleting the database: `docker compose down`
+- Create an administrator interactively: `docker compose exec backend python src/backend/create_admin.py`
+- Set a password for an existing user interactively: `docker compose exec backend python src/backend/reset_user_password.py`
+
+The backend container runs the existing Alembic, category and budget migration scripts
+before starting Uvicorn. These scripts may change the schema and existing records when
+upgrading an old database; the previous budget migration cannot reconstruct old limit
+amounts that were never stored. Back up data before upgrading an older installation.
+For a fresh database, the application creates the remaining tables on startup.
+The frontend is built once into a static Nginx image, which forwards `/api/` to the backend.
+Run `docker compose up -d --build` again after source changes. These local settings are not
+a production deployment configuration.
+
+If a host port is already occupied, set `BACKEND_PORT`, `FRONTEND_PORT` and/or `DB_PORT` before
+starting Compose, for example `$env:BACKEND_PORT = '8001'` and
+`$env:FRONTEND_PORT = '5174'`. Use those ports in the URLs above. The ports inside
+the Docker network do not change.
+
+## Run backend locally (Windows PowerShell)
 
 ```powershell
 python -m venv .venv
