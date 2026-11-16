@@ -1,7 +1,31 @@
 # Saldo
 
-FastAPI backend for personal budgeting. Users authenticate with a JWT and can access only
-their own financial records; administrators can manage accounts and see aggregate statistics.
+Personal budgeting app with a FastAPI backend, React frontend and PostgreSQL database.
+Users authenticate with a JWT and can access only their own financial records;
+administrators can manage accounts and see aggregate statistics.
+
+[Project assignment](https://docs.google.com/document/d/1UmZV9U7HtBPbEnsbWl9EhdRSBmhBWEiBZvPVCL-w8t0/edit?usp=sharing)
+
+## Project structure
+
+| Path | Contents |
+| --- | --- |
+| `src/backend/main.py` | FastAPI entry point, router registration and application lifecycle. |
+| `src/backend/routers/` | HTTP endpoints for authentication, transactions, categories, budgets, savings goals, analytics and administration. |
+| `src/backend/services/` | Business logic, including authentication, budget history and analytics calculations. |
+| `src/backend/repositories/` | Database queries and persistence operations. |
+| `src/backend/models/` | SQLAlchemy models describing database tables. |
+| `src/backend/schemas/` | Pydantic models for request validation and API responses. |
+| `src/backend/database.py`, `src/backend/security.py` | Database sessions, password hashing, JWT handling and access checks. |
+| `src/backend/alembic/` | Versioned migrations for the complete database schema and upgrades from older installations. |
+| `src/backend/create_admin.py`, `src/backend/reset_user_password.py` | Interactive administrator creation and password reset utilities. |
+| `src/frontend/src/pages/` | Application screens. |
+| `src/frontend/src/auth/`, `src/frontend/src/api/` | Login and registration UI, authentication state, route guards and HTTP client. |
+| `src/frontend/src/assets/`, `src/frontend/public/` | Frontend assets and public static files. |
+| `src/backend/tests/`, `src/frontend/tests/` | Backend integration tests and frontend tests. |
+| `compose.yaml`, `src/backend/Dockerfile`, `src/frontend/Dockerfile` | Container builds and startup of PostgreSQL, the backend and the frontend. |
+| `src/frontend/nginx.conf`, `src/frontend/vite.config.ts` | Static file serving and API proxying in Docker and local development, respectively. |
+| `.env.example`, `requirements*.txt`, `src/frontend/package.json` | Environment variable template and backend/frontend dependencies. |
 
 ## Run the complete app with Docker Compose
 
@@ -29,11 +53,12 @@ Compose uses the database address `db:5432` inside Docker regardless of the loca
 - Create an administrator interactively: `docker compose exec backend python src/backend/create_admin.py`
 - Set a password for an existing user interactively: `docker compose exec backend python src/backend/reset_user_password.py`
 
-The backend container runs the existing Alembic, category and budget migration scripts
-before starting Uvicorn. These scripts may change the schema and existing records when
-upgrading an old database; the previous budget migration cannot reconstruct old limit
+The backend container runs `python -m alembic upgrade head` before starting Uvicorn.
+Alembic creates the complete schema for a fresh database and upgrades older installations,
+including those already updated by the former standalone migration scripts. Migrations
+may change the schema and existing records; budget history cannot reconstruct old limit
 amounts that were never stored. Back up data before upgrading an older installation.
-For a fresh database, the application creates the remaining tables on startup.
+The application itself does not create or alter tables.
 The frontend is built once into a static Nginx image, which forwards `/api/` to the backend.
 Run `docker compose up -d --build` again after source changes. These local settings are not
 a production deployment configuration.
@@ -49,20 +74,23 @@ the Docker network do not change.
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-Copy-Item .env.example .env
-python -c "import secrets; from pathlib import Path; p=Path('.env'); p.write_text(p.read_text().replace('JWT_SECRET_KEY=', 'JWT_SECRET_KEY='+secrets.token_urlsafe(48)), encoding='utf-8')"
+if (!(Test-Path .env)) {
+    Copy-Item .env.example .env
+    python -c "import secrets; from pathlib import Path; p=Path('.env'); p.write_text(p.read_text().replace('JWT_SECRET_KEY=', 'JWT_SECRET_KEY='+secrets.token_urlsafe(48)), encoding='utf-8')"
+}
 docker compose up -d db
 docker compose ps
 .\.venv\Scripts\python.exe -m alembic upgrade head
 cd src/backend
-python migrate_categories.py
-python migrate_budget_history.py
 uvicorn main:app --reload
 ```
 
-For an existing database, run the migration before starting the new application. It transfers
-old category names into per-user categories, separated by transaction type, and preserves
-transactions. It is safe to run again after it has completed.
+Run `python -m alembic upgrade head` from the project root before starting the backend
+locally, for both new and existing databases. It transfers old category names into per-user
+categories, separated by transaction type, and preserves transactions. Already-applied
+category and budget upgrades are detected without rewriting their data; Alembic records
+the new revision IDs. Repeating `upgrade head` applies only pending revisions. Downgrades
+are intentionally disabled because they could discard existing data.
 
 On an existing installation, run the Alembic migration before starting the updated app.
 Existing users remain active with the `USER` role. The old `demo` user has no usable password;
@@ -127,12 +155,17 @@ Notes:
   the administrator's own user ID and cannot access another user's financial data.
 - `category.month_limit` is a legacy field and is not used by the new limit calculations.
 - DB runs on host 127.0.0.1:55432, inside the container on 5432.
-- Changing ORM model definitions won't alter existing tables created by `create_all()`;
-  for development use Alembic, or reset only if you can discard all local data.
-- `migrate_budget_history.py` upgrades the earlier budget tables without deleting existing
+- Changing ORM model definitions does not alter the database. Create and review an Alembic
+  revision with `python -m alembic revision --autogenerate -m "Describe the change"`, then
+  apply it with `python -m alembic upgrade head` from the project root.
+- The budget history Alembic revision upgrades earlier budget tables without deleting existing
   limits or periods. Earlier period values are reconstructed using the limit amount and
   transaction data available at migration time; old limit changes cannot be recovered.
 
 For integration tests, install `pip install -r requirements-dev.txt` and run
 `python -m pytest tests` from `src/backend` against PostgreSQL with the schema installed.
-Test records are inserted inside transactions that are rolled back.
+Service tests roll back their transactions; authentication tests remove their test records.
+Migration tests use isolated schemas and roll back all schema and data changes. They cover
+fresh databases, legacy category and budget upgrades, already-migrated installations,
+repeat upgrades and failure rollback. Set `MIGRATION_TEST_DATABASE_URL` to use a separate
+PostgreSQL instance for these migration tests; otherwise they use `DATABASE_URL`.
