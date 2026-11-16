@@ -26,5 +26,7 @@ async def run_async():
 
 if context.is_offline_mode():
     raise RuntimeError("Online PostgreSQL connection is required")
+elif context.config.attributes.get("connection") is not None:
+    run_migrations(context.config.attributes["connection"])
 else:
     asyncio.run(run_async())

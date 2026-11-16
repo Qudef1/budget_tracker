@@ -9,4 +9,4 @@ COPY alembic.ini ./
 COPY src/backend ./src/backend
 
 EXPOSE 8000
-CMD ["sh", "-c", "python -m alembic upgrade head && python src/backend/migrate_categories.py && python src/backend/migrate_budget_history.py && exec uvicorn main:app --host 0.0.0.0 --port 8000 --app-dir src/backend"]
+CMD ["sh", "-c", "python -m alembic upgrade head && exec uvicorn main:app --host 0.0.0.0 --port 8000 --app-dir src/backend"]
