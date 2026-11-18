@@ -2,15 +2,15 @@ from datetime import date
 from typing import Sequence
 from sqlalchemy import select, func, case, and_
 from sqlalchemy.ext.asyncio import AsyncSession
-from models.financial_transaction import FinancialTransaction
+from models.financial_transaction import Operation
 from repositories.base import BaseRepository
 from models.base import TransactionType
 from models.category import Category
 
 
-class FinancialTransactionRepository(BaseRepository[FinancialTransaction]):
+class FinancialTransactionRepository(BaseRepository[Operation]):
     def __init__(self, session: AsyncSession):
-        super().__init__(model=FinancialTransaction, session=session)
+        super().__init__(model=Operation, session=session)
 
     async def sum_expenses(self, user_id, category_id, currency, year, month):
         start = date(year, month, 1)
@@ -50,7 +50,7 @@ class FinancialTransactionRepository(BaseRepository[FinancialTransaction]):
                 .order_by(total.desc(), Category.id.asc().nulls_last()))
         return (await self.session.execute(stmt)).all()
 
-    async def get_by_id(self, transaction_id: int, user_id: int) -> FinancialTransaction | None:
+    async def get_by_id(self, transaction_id: int, user_id: int) -> Operation | None:
         stmt = select(self.model).where(
             self.model.id == transaction_id,
             self.model.user_id == user_id,
@@ -59,7 +59,7 @@ class FinancialTransactionRepository(BaseRepository[FinancialTransaction]):
 
     async def get_multi(
         self, user_id: int, skip: int = 0, limit: int = 100
-    ) -> Sequence[FinancialTransaction]:
+    ) -> Sequence[Operation]:
         stmt = (
             select(self.model)
             .where(self.model.user_id == user_id)
@@ -72,7 +72,7 @@ class FinancialTransactionRepository(BaseRepository[FinancialTransaction]):
 
     async def get_by_month(
         self, user_id: int, year: int, month: int
-    ) -> Sequence[FinancialTransaction]:
+    ) -> Sequence[Operation]:
         if not 1 <= month <= 12:
             raise ValueError("month must be between 1 and 12")
         start = date(year, month, 1)

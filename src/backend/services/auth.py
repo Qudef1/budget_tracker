@@ -6,7 +6,7 @@ from repositories.user import UserRepository
 from security import create_access_token, password_hasher
 
 
-class AuthService:
+class AuthController:
     def __init__(self, session):
         self.users = UserRepository(session)
 

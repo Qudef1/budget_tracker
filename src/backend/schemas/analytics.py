@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from models.base import Currency
 
 
-class MonthlySummary(BaseModel):
+class MonthMetrics(BaseModel):
     year: int
     month: int
     currency: Currency
@@ -13,8 +13,8 @@ class MonthlySummary(BaseModel):
 
 
 class MonthComparison(BaseModel):
-    first: MonthlySummary
-    second: MonthlySummary
+    first: MonthMetrics
+    second: MonthMetrics
     income_change: Decimal
     expenses_change: Decimal
     balance_change: Decimal

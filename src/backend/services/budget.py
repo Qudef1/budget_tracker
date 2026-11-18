@@ -23,7 +23,7 @@ def next_month(value):
     return date(value.year + 1, 1, 1) if value.month == 12 else date(value.year, value.month + 1, 1)
 
 
-class BudgetService:
+class BudgetController:
     def __init__(self, session):
         self.limits = MonthlyExpenseLimitRepository(session)
         self.periods = ExecutionLimitPeriodRepository(session)

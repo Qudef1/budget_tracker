@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import BaseModel, Field
 from models.base import Currency, TransactionType
 
-class TransactionBase(BaseModel):
+class OperationData(BaseModel):
     transaction_type: TransactionType
     amount: Decimal = Field(max_digits=10, decimal_places=2, gt=0)
     currency: Currency = Currency.BYN
@@ -12,7 +12,7 @@ class TransactionBase(BaseModel):
     operation_date: date
     comment: Optional[str] = Field(None, max_length=500)
 
-class TransactionCreate(TransactionBase):
+class TransactionCreate(OperationData):
     pass
 
 class TransactionUpdate(BaseModel):
@@ -23,7 +23,7 @@ class TransactionUpdate(BaseModel):
     operation_date: Optional[date] = None
     comment: Optional[str] = Field(None, max_length=500)
 
-class TransactionResponse(TransactionBase):
+class TransactionResponse(OperationData):
     id: int
 
     class Config:

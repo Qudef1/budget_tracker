@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from models.base import Base
 
 
-class ExecutionLimitPeriod(Base):
+class LimitPeriod(Base):
     __tablename__ = "execution_limit_periods"
     __table_args__ = (
         UniqueConstraint("monthly_expense_limit_id", "year", "month", name="uq_limit_period"),

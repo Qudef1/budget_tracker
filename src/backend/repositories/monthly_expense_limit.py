@@ -1,11 +1,11 @@
 from sqlalchemy import select
-from models.monthly_expense_limit import MonthlyExpenseLimit
+from models.monthly_expense_limit import Limit
 from repositories.base import BaseRepository
 
 
-class MonthlyExpenseLimitRepository(BaseRepository[MonthlyExpenseLimit]):
+class MonthlyExpenseLimitRepository(BaseRepository[Limit]):
     def __init__(self, session):
-        super().__init__(MonthlyExpenseLimit, session)
+        super().__init__(Limit, session)
 
     async def get_by_id(self, item_id, user_id, *, for_update=False, include_inactive=False):
         stmt = select(self.model).where(self.model.id == item_id, self.model.user_id == user_id)

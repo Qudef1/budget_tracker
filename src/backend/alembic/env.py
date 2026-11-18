@@ -4,10 +4,10 @@ from database import engine
 from models.base import Base
 from models.user import User
 from models.category import Category
-from models.financial_transaction import FinancialTransaction
-from models.monthly_expense_limit import MonthlyExpenseLimit
-from models.execution_limit_period import ExecutionLimitPeriod
-from models.savings_goal import SavingsGoal
+from models.financial_transaction import Operation
+from models.monthly_expense_limit import Limit
+from models.execution_limit_period import LimitPeriod
+from models.savings_goal import Goal
 
 target_metadata = Base.metadata
 

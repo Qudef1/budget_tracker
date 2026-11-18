@@ -5,7 +5,7 @@ from datetime import date
 from typing import Optional
 from models.base import Base, TransactionType, Currency
 
-class FinancialTransaction(Base):
+class Operation(Base):
     __tablename__ = 'operations'
 
     id: Mapped[int] = mapped_column(Integer,primary_key=True)

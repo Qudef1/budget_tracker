@@ -1,11 +1,11 @@
 ﻿from sqlalchemy import select
-from models.execution_limit_period import ExecutionLimitPeriod
+from models.execution_limit_period import LimitPeriod
 from repositories.base import BaseRepository
 
 
-class ExecutionLimitPeriodRepository(BaseRepository[ExecutionLimitPeriod]):
+class ExecutionLimitPeriodRepository(BaseRepository[LimitPeriod]):
     def __init__(self, session):
-        super().__init__(ExecutionLimitPeriod, session)
+        super().__init__(LimitPeriod, session)
 
     async def get_for_month(self, limit_id, year, month):
         return await self.session.scalar(select(self.model).where(

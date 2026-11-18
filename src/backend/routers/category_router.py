@@ -4,7 +4,7 @@ from database import get_async_session
 from security import get_current_user_id
 from schemas.category import CategoryCreate, CategoryResponse, CategoryUpdate
 from repositories.category import CategoryRepository
-from services.budget import BudgetService
+from services.budget import BudgetController
 
 router = APIRouter(prefix="/categories", tags=["Categories"])
 
@@ -84,5 +84,5 @@ async def delete_category(
             raise HTTPException(status_code=404, detail="Категория не найдена")
         active_limits = await repo.active_limit_ids(category_id)
         for limit_id in active_limits:
-            await BudgetService(session).delete_limit(user_id, limit_id)
+            await BudgetController(session).delete_limit(user_id, limit_id)
         await repo.delete(obj)

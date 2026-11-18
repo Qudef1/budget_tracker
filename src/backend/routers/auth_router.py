@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_async_session
 from schemas.user import TokenResponse, UserRegister, UserResponse
 from security import get_current_active_user
-from services.auth import AuthService
+from services.auth import AuthController
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -15,7 +15,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 async def register(payload: UserRegister, session: AsyncSession = Depends(get_async_session)):
     try:
         async with session.begin():
-            return await AuthService(session).register(payload)
+            return await AuthController(session).register(payload)
     except IntegrityError as exc:
         if getattr(exc.orig, "sqlstate", None) == "23505":
             raise HTTPException(409, "Логин уже занят") from exc
@@ -24,7 +24,7 @@ async def register(payload: UserRegister, session: AsyncSession = Depends(get_as
 
 @router.post("/login", response_model=TokenResponse)
 async def login(form: OAuth2PasswordRequestForm = Depends(), session: AsyncSession = Depends(get_async_session)):
-    service = AuthService(session)
+    service = AuthController(session)
     user = await service.authenticate(form.username, form.password)
     if user is None:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Неверный логин или пароль", headers={"WWW-Authenticate": "Bearer"})

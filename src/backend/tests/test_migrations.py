@@ -18,10 +18,10 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 from models.base import Base
 from models.category import Category  # noqa: F401 -- populate ORM metadata
-from models.execution_limit_period import ExecutionLimitPeriod  # noqa: F401
-from models.financial_transaction import FinancialTransaction  # noqa: F401
-from models.monthly_expense_limit import MonthlyExpenseLimit  # noqa: F401
-from models.savings_goal import SavingsGoal  # noqa: F401
+from models.execution_limit_period import LimitPeriod  # noqa: F401
+from models.financial_transaction import Operation  # noqa: F401
+from models.monthly_expense_limit import Limit  # noqa: F401
+from models.savings_goal import Goal  # noqa: F401
 from models.user import User  # noqa: F401
 
 

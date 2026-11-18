@@ -1,0 +1,306 @@
+\documentclass[14pt,a4paper]{extarticle}
+
+% =========================================================
+% КОМПИЛЯТОР: XeLaTeX
+% VS Code: убедитесь, что выбран рецепт XeLaTeX
+% =========================================================
+
+% -------------------------
+% Язык и шрифты
+% -------------------------
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setdefaultlanguage{russian}
+
+% Times-подобный шрифт с кириллицей.
+% Сначала пробуем Times New Roman, затем Liberation Serif,
+% затем FreeSerif.
+\IfFontExistsTF{Times New Roman}
+    {\setmainfont{Times New Roman}}
+    {
+        \IfFontExistsTF{Liberation Serif}
+            {\setmainfont{Liberation Serif}}
+            {\setmainfont{FreeSerif}}
+    }
+
+\IfFontExistsTF{DejaVu Sans Mono}
+    {\setmonofont{DejaVu Sans Mono}}
+    {\setmonofont{FreeMono}}
+
+% -------------------------
+% Страница
+% -------------------------
+\usepackage[
+    left=30mm,
+    right=15mm,
+    top=20mm,
+    bottom=20mm
+]{geometry}
+
+\usepackage{setspace}
+\onehalfspacing
+
+\setlength{\parindent}{1.25cm}
+\setlength{\parskip}{0pt}
+\setlength{\emergencystretch}{2em}
+
+\usepackage{microtype}
+\usepackage{ragged2e}
+\usepackage{enumitem}
+
+% -------------------------
+% Графика и таблицы
+% -------------------------
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{longtable}
+
+\graphicspath{{images/}}
+
+\captionsetup{
+    font=normalsize,
+    labelsep=endash,
+    justification=centering
+}
+
+% -------------------------
+% Заголовки
+% -------------------------
+\usepackage{titlesec}
+
+\titleformat{\section}
+    {\bfseries\fontsize{14pt}{17pt}\selectfont}
+    {\thesection}
+    {0.8em}
+    {}
+
+\titleformat{\subsection}
+    {\bfseries\fontsize{14pt}{17pt}\selectfont}
+    {\thesubsection}
+    {0.8em}
+    {}
+
+\titleformat{\subsubsection}
+    {\bfseries\fontsize{14pt}{17pt}\selectfont}
+    {\thesubsubsection}
+    {0.8em}
+    {}
+
+\titlespacing*{\section}
+    {0pt}{12pt}{12pt}
+
+\titlespacing*{\subsection}
+    {0pt}{12pt}{6pt}
+
+\titlespacing*{\subsubsection}
+    {0pt}{12pt}{6pt}
+
+% -------------------------
+% Содержание
+% -------------------------
+\usepackage{tocloft}
+
+\renewcommand{\contentsname}{СОДЕРЖАНИЕ}
+\setlength{\cftbeforesecskip}{0pt}
+\setlength{\cftbeforesubsecskip}{0pt}
+
+% -------------------------
+% Списки
+% -------------------------
+\setlist[itemize]{
+    label=--,
+    leftmargin=1.25cm,
+    itemsep=0pt,
+    topsep=3pt
+}
+
+\setlist[enumerate]{
+    leftmargin=1.25cm,
+    itemsep=0pt,
+    topsep=3pt
+}
+
+% -------------------------
+% Ссылки
+% -------------------------
+\usepackage[hidelinks]{hyperref}
+
+% =========================================================
+% ДАННЫЕ ДЛЯ ТИТУЛЬНОГО ЛИСТА
+% =========================================================
+
+\newcommand{\StudentGroup}{421702}
+\newcommand{\StudentName}{А.\,В.~Сайковский}
+\newcommand{\TeacherName}{Е.\,Д.~Кветко}
+\newcommand{\VariantNumber}{19}
+
+\newcommand{\DisciplineName}{Объектное моделирование интеллектуальных систем}
+\newcommand{\LabNumber}{2}
+\newcommand{\LabTitle}{Реализация объектной модели}
+\newcommand{\SystemTitle}{Электронная система учета и управления личным бюджетом}
+
+% =========================================================
+% ВСПОМОГАТЕЛЬНЫЕ КОМАНДЫ
+% =========================================================
+
+% Заглушка для диаграммы.
+% Пока изображения нет, можно оставить эту команду.
+
+\newcommand{\DiagramPlaceholder}[1]{
+    \begin{figure}[H]
+        \centering
+        \fbox{
+            \parbox[c][6cm][c]{0.85\textwidth}{
+                \centering
+                #1\\[0.5cm]
+                \textit{}
+            }
+        }
+        \caption{#1}
+    \end{figure}
+}
+
+% Пример вставки готовой диаграммы:
+%
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.95\textwidth]{er-diagram.png}
+%     \caption{ER-диаграмма программной системы}
+%     \label{fig:er}
+% \end{figure}
+
+% =========================================================
+% ДОКУМЕНТ
+% =========================================================
+
+\begin{document}
+
+\justifying
+\pagestyle{plain}
+
+% =========================================================
+% ТИТУЛЬНЫЙ ЛИСТ
+% =========================================================
+
+\begin{titlepage}
+\thispagestyle{empty}
+
+\begin{center}
+
+Министерство образования Республики Беларусь
+
+Учреждение образования
+
+\vspace{0.2cm}
+
+\textbf{БЕЛОРУССКИЙ ГОСУДАРСТВЕННЫЙ УНИВЕРСИТЕТ}\\
+\textbf{ИНФОРМАТИКИ И РАДИОЭЛЕКТРОНИКИ}
+
+\vspace{0.3cm}
+
+Факультет информационных технологий и управления
+
+Кафедра интеллектуальных информационных технологий
+
+\vfill
+
+{\Large\textbf{ОТЧЁТ}}
+
+\vspace{0.4cm}
+
+о выполнении лабораторной работы №\LabNumber
+
+по дисциплине «\DisciplineName»
+
+\vspace{0.4cm}
+
+на тему:
+
+\vspace{0.3cm}
+
+{\large\textbf{\LabTitle}}
+
+\vspace{0.4cm}
+
+\textbf{Объектная модель программной системы}\\
+«\SystemTitle»
+
+\vspace{0.3cm}
+
+(Вариант №\VariantNumber)
+
+\vfill
+
+\end{center}
+
+\begin{flushright}
+\begin{minipage}{0.48\textwidth}
+
+Студент гр. \StudentGroup
+
+\StudentName
+
+\vspace{0.6cm}
+
+Преподаватель
+
+\TeacherName
+
+\end{minipage}
+\end{flushright}
+
+\vfill
+
+\begin{center}
+Минск 2026
+\end{center}
+
+\end{titlepage}
+
+\setcounter{page}{1}
+
+\section*{Постановка задачи}
+
+\begin{enumerate}
+    \item Найти ошибки и недочёты в спецификации системы учёта личного бюджета. Для проверки использовать список из приложения~3.
+    \item Реализовать объектную модель и веб-интерфейс с переходами между экранами. Разместить исходный код на GitHub и указать ссылку в отчёте.
+\end{enumerate}
+
+\section*{Реализация задачи}
+
+\subsection*{Задание 1. Поиск ошибок}
+
+\begin{enumerate}
+    \item \textbf{Категория операции.} В текстовом описании среди полей операции необязательным назван только комментарий. На диаграмме у операции может быть от нуля до одной категории. В спецификации не сказано явно, можно ли сохранить операцию без категории и куда попадут такие расходы в отчёте.
+
+    \item \textbf{История лимитов.} На диаграмме у категории может быть не больше двух лимитов. В тексте ограничение относится к действующим лимитам: по одному на каждую валюту. Если пользователь закроет лимит и позже создаст новый, в истории появится ещё одна запись. Модель не отделяет действующие лимиты от архивных и не уточняет, что происходит с историей после удаления категории.
+
+    \item \textbf{Состояния лимита.} В тексте предупреждение появляется при достижении 80\,\%. На диаграмме указано поле «состояние», но не перечислены его значения. Также не описано, как отображается лимит, когда расходы составляют ровно 100\,\%, и как рассчитывается сумма перерасхода.
+
+    \item \textbf{Итоги за месяц.} По сценарию пользователь видит итоги отдельно в BYN и USD. Метод на диаграмме получает месяц, но не получает валюту и возвращает один набор показателей с одной валютой. В таком виде из сигнатуры неясно, как получить итоги для обеих валют. У результатов анализа по категориям и общей статистики указан тип \texttt{Map}, но состав возвращаемых данных не раскрыт.
+\end{enumerate}
+
+\subsection*{Задание 2. Реализация проекта}
+
+Saldo --- веб-приложение для учёта личного бюджета. Серверная часть написана на Python с FastAPI, данные хранятся в PostgreSQL, а интерфейс написан на React и TypeScript. После входа пользователь может перейти к операциям, категориям, лимитам, накоплениям и аналитике. Администратору доступны блокировка и разблокировка учётных записей и общая статистика по системе.
+
+\subsubsection*{Детали реализации}
+
+\begin{itemize}
+    \item \textbf{Вход и выход.} \texttt{AuthController} регистрирует пользователя, проверяет пароль и выдаёт JWT. При выходе браузер удаляет токен. Отдельная серверная сессия в приложении не хранится.
+
+    \item \textbf{Операции и категории.} \texttt{Operation} хранит доходы и расходы. Операцию можно сохранить без категории. При удалении категории связанные операции сохраняются без неё, а действующие лимиты архивируются. В спецификации удаление разрешено только для категорий без связанных операций.
+
+    \item \textbf{Лимиты.} \texttt{BudgetController} рассчитывает исполнение по запросу. Для закрытых периодов используется сохранённый снимок. При изменении лимита сохраняются данные прошлых месяцев, а при удалении --- также текущего. Предупреждение появляется при расходах строго больше 80\,\%, а превышение фиксируется выше 100\,\%. Пользователь видит сумму расходов, лимит и процент использования.
+
+    \item \textbf{Накопления и аналитика.} В \texttt{Goal} хранится целевая и уже отложенная сумма. Пользователь обновляет накопления вручную и видит их на шкале прогресса. Отдельной отметки о достижении цели нет. \texttt{AnalyticsController} считает доходы, расходы и финансовый результат по выбранной валюте, сравнивает месяцы и группирует расходы по категориям. Операции без категории попадают в отдельную группу.
+
+    \item \textbf{Связь с диаграммой классов.} Операциями, категориями, целями и учётными записями управляют обработчики FastAPI. Доступ к данным разделён между репозиториями, а экраны представлены компонентами React.
+\end{itemize}
+
+Исходный код проекта доступен в \href{https://github.com/Qudef1/budget_tracker}{репозитории Saldo на GitHub}.
+
+\end{document}

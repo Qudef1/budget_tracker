@@ -11,10 +11,10 @@ from sqlalchemy import delete, select
 from database import AsyncSessionLocal, engine
 from main import app
 from models.category import Category
-from models.execution_limit_period import ExecutionLimitPeriod
-from models.financial_transaction import FinancialTransaction
-from models.monthly_expense_limit import MonthlyExpenseLimit
-from models.savings_goal import SavingsGoal
+from models.execution_limit_period import LimitPeriod
+from models.financial_transaction import Operation
+from models.monthly_expense_limit import Limit
+from models.savings_goal import Goal
 from models.user import User, UserRole
 from security import password_hasher, settings
 
@@ -113,9 +113,9 @@ async def run_scenario():
     finally:
         if ids:
             async with AsyncSessionLocal.begin() as session:
-                limit_ids = select(MonthlyExpenseLimit.id).where(MonthlyExpenseLimit.user_id.in_(ids))
-                await session.execute(delete(ExecutionLimitPeriod).where(ExecutionLimitPeriod.monthly_expense_limit_id.in_(limit_ids)))
-                for model in (FinancialTransaction, MonthlyExpenseLimit, SavingsGoal, Category):
+                limit_ids = select(Limit.id).where(Limit.user_id.in_(ids))
+                await session.execute(delete(LimitPeriod).where(LimitPeriod.monthly_expense_limit_id.in_(limit_ids)))
+                for model in (Operation, Limit, Goal, Category):
                     await session.execute(delete(model).where(model.user_id.in_(ids)))
                 await session.execute(delete(User).where(User.id.in_(ids)))
         await engine.dispose()

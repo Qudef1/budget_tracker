@@ -45,3 +45,8 @@ pip-wheel-metadata/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+*.toc
+*.synctex.*
+*.out
+*.log

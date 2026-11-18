@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from schemas.execution_limit_period import PeriodStatus
 
 
-class LimitExecutionResponse(BaseModel):
+class LimitResult(BaseModel):
     limit_id: int
     year: int
     month: int

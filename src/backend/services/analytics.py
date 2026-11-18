@@ -3,7 +3,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from repositories.admin_analytics import AdminAnalyticsRepository
 from repositories.financial_transaction import FinancialTransactionRepository
 from schemas.analytics import (AdminStatistics, CategoryExpenses, ExpensesByCategory,
-                               MonthComparison, MonthlySummary)
+                               MonthComparison, MonthMetrics)
 
 
 def percentage(numerator, denominator):
@@ -12,13 +12,13 @@ def percentage(numerator, denominator):
     return (numerator * Decimal(100) / denominator).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 
-class AnalyticsService:
+class AnalyticsController:
     def __init__(self, session):
         self.transactions = FinancialTransactionRepository(session)
 
     async def get_monthly_summary(self, user_id, year, month, currency):
         income, expenses = await self.transactions.monthly_totals(user_id, year, month, currency)
-        return MonthlySummary(year=year, month=month, currency=currency,
+        return MonthMetrics(year=year, month=month, currency=currency,
                               total_income=income, total_expenses=expenses, balance=income - expenses)
 
     async def compare_months(self, user_id, first_year, first_month, second_year, second_month, currency):

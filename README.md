@@ -24,6 +24,15 @@ administrators can manage accounts and see aggregate statistics.
 | `src/frontend/src/assets/`, `src/frontend/public/` | Frontend assets and public static files. |
 | `src/backend/tests/`, `src/frontend/tests/` | Backend integration tests and frontend tests. |
 | `compose.yaml`, `src/backend/Dockerfile`, `src/frontend/Dockerfile` | Container builds and startup of PostgreSQL, the backend and the frontend. |
+
+## Backend classes
+
+| Layer | Classes |
+| --- | --- |
+| SQLAlchemy models | `User`, `Category`, `Operation`, `Limit`, `LimitPeriod`, `Goal` |
+| Application controllers | `AuthController`, `BudgetController`, `AnalyticsController` |
+| Pydantic data models | `OperationData`, `LimitResult`, `MonthMetrics` |
+| Repositories | `UserRepository`, `CategoryRepository`, `GoalRepository`, `FinancialTransactionRepository`, `MonthlyExpenseLimitRepository`, `ExecutionLimitPeriodRepository`, `AdminAnalyticsRepository` |
 | `src/frontend/nginx.conf`, `src/frontend/vite.config.ts` | Static file serving and API proxying in Docker and local development, respectively. |
 | `.env.example`, `requirements*.txt`, `src/frontend/package.json` | Environment variable template and backend/frontend dependencies. |
 

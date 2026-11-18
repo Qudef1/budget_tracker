@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from models.base import Base, Currency
 
 
-class MonthlyExpenseLimit(Base):
+class Limit(Base):
     __tablename__ = "monthly_expense_limits"
     __table_args__ = (
         Index("uq_active_monthly_limit", "user_id", "category_id", "currency", unique=True, postgresql_where=text("is_active")),

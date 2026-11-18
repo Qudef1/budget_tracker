@@ -6,7 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from models.base import Base, Currency
 
 
-class SavingsGoal(Base):
+class Goal(Base):
     __tablename__ = "savings_goals"
     __table_args__ = (
         CheckConstraint("amount > 0", name="ck_savings_goal_amount_positive"),

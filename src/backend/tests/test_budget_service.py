@@ -9,10 +9,10 @@ from sqlalchemy import select
 from database import AsyncSessionLocal, engine
 from models.base import Currency, TransactionType
 from models.category import Category, CategoryKind
-from models.financial_transaction import FinancialTransaction
+from models.financial_transaction import Operation
 from models.user import User
 from schemas.monthly_expense_limit import MonthlyExpenseLimitCreate
-from services.budget import BudgetError, BudgetService
+from services.budget import BudgetError, BudgetController
 
 
 class BudgetServiceTest(IsolatedAsyncioTestCase):
@@ -27,7 +27,7 @@ class BudgetServiceTest(IsolatedAsyncioTestCase):
                                  category_type=CategoryKind.CUSTOM, month_limit=1000)
         self.session.add(self.category)
         await self.session.flush()
-        self.service = BudgetService(self.session)
+        self.service = BudgetController(self.session)
 
     async def asyncTearDown(self):
         await self.transaction.rollback()
@@ -39,7 +39,7 @@ class BudgetServiceTest(IsolatedAsyncioTestCase):
         with patch("services.budget.current_month", return_value=date(2026, 10, 1)):
             limit = await self.service.create_limit(user_id, MonthlyExpenseLimitCreate(
                 category_id=self.category.id, amount=100, currency=Currency.BYN))
-            tx = FinancialTransaction(user_id=user_id, category_id=self.category.id,
+            tx = Operation(user_id=user_id, category_id=self.category.id,
                 transaction_type=TransactionType.EXPENSE, amount=Decimal("81"), currency=Currency.BYN,
                 operation_date=date(2026, 10, 20))
             self.session.add(tx)
@@ -66,12 +66,12 @@ class BudgetServiceTest(IsolatedAsyncioTestCase):
         with patch("services.budget.current_month", return_value=date(2026, 11, 1)):
             limit = await self.service.create_limit(self.user.id, MonthlyExpenseLimitCreate(
                 category_id=self.category.id, amount=100, currency=Currency.BYN))
-            tx = FinancialTransaction(user_id=self.user.id, category_id=self.category.id,
+            tx = Operation(user_id=self.user.id, category_id=self.category.id,
                 transaction_type=TransactionType.EXPENSE, amount=80, currency=Currency.BYN,
                 operation_date=date(2026, 11, 1))
-            self.session.add_all([tx, FinancialTransaction(user_id=self.user.id, category_id=self.category.id,
+            self.session.add_all([tx, Operation(user_id=self.user.id, category_id=self.category.id,
                 transaction_type=TransactionType.EXPENSE, amount=1000, currency=Currency.USD,
-                operation_date=date(2026, 11, 1)), FinancialTransaction(user_id=self.user.id,
+                operation_date=date(2026, 11, 1)), Operation(user_id=self.user.id,
                 category_id=self.category.id, transaction_type=TransactionType.EXPENSE, amount=1000,
                 currency=Currency.BYN, operation_date=date(2026, 10, 31))])
             await self.session.flush()

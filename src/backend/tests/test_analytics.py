@@ -9,10 +9,10 @@ from database import AsyncSessionLocal, engine, get_async_session
 from main import app
 from models.base import Currency, TransactionType
 from models.category import Category, CategoryKind
-from models.financial_transaction import FinancialTransaction
+from models.financial_transaction import Operation
 from models.user import User
-from models.savings_goal import SavingsGoal
-from services.analytics import AdminAnalyticsService, AnalyticsService
+from models.savings_goal import Goal
+from services.analytics import AdminAnalyticsService, AnalyticsController
 from security import get_current_user_id
 
 
@@ -29,7 +29,7 @@ class AnalyticsIntegrationTest(IsolatedAsyncioTestCase):
                            for name in ("Food", "Transport")]
         self.session.add_all(self.categories)
         await self.session.flush()
-        self.service = AnalyticsService(self.session)
+        self.service = AnalyticsController(self.session)
 
     async def asyncTearDown(self):
         await self.transaction.rollback()
@@ -37,7 +37,7 @@ class AnalyticsIntegrationTest(IsolatedAsyncioTestCase):
         await engine.dispose()
 
     def add_operation(self, user, amount, kind, currency, when, category=None):
-        self.session.add(FinancialTransaction(user_id=user.id, amount=Decimal(amount),
+        self.session.add(Operation(user_id=user.id, amount=Decimal(amount),
             transaction_type=kind, currency=currency, operation_date=when,
             category_id=category.id if category else None))
 
@@ -97,7 +97,7 @@ class AnalyticsIntegrationTest(IsolatedAsyncioTestCase):
         baseline = await admin.get_statistics(2026, 11)
         self.add_operation(self.users[0], '17', TransactionType.EXPENSE, Currency.BYN, date(2026, 11, 3))
         self.add_operation(self.users[1], '9', TransactionType.EXPENSE, Currency.USD, date(2026, 10, 3))
-        self.session.add(SavingsGoal(name='test', amount=100, currency=Currency.BYN, status=0, user_id=self.users[0].id))
+        self.session.add(Goal(name='test', amount=100, currency=Currency.BYN, status=0, user_id=self.users[0].id))
         self.session.add(Category(name='new', user_id=self.users[0].id, transaction_type=TransactionType.EXPENSE,
                                   category_type=CategoryKind.CUSTOM))
         await self.session.flush()
